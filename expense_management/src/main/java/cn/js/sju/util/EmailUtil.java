@@ -10,67 +10,67 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class EmailUtil {
-	private static String fromEmail = "1366734774@qq.com";  // ·¢¼şÈËÕËºÅ
-	private static String fromEmailPw = "qjwpterfxjdzbace";  // ·¢¼şÈËÃÜÂë
-	private static String myEmailSMTPHost = "smtp.qq.com";  // ·¢¼şÓÊÏä·şÎñÆ÷
-	private static Properties props;  // ÓÃÓÚ²ÎÊıÅäÖÃ
-	private static Session session;  // ÓÃÓÚ´´½¨»á»°¶ÔÏó
+	private static String fromEmail = "youremail@example.com";  // å‘ä»¶äººè´¦å·
+	private static String fromEmailPw = "yourpassword";  // å‘ä»¶äººå¯†ç 
+	private static String myEmailSMTPHost = "smtp.qq.com";  // å‘ä»¶é‚®ç®±æœåŠ¡å™¨
+	private static Properties props;  // ç”¨äºå‚æ•°é…ç½®
+	private static Session session;  // ç”¨äºåˆ›å»ºä¼šè¯å¯¹è±¡
 	private String vCode;
 	public static EmailUtil instance = new EmailUtil();
 	
 	/*
-	 * »ñÈ¡ÑéÖ¤Âë
-	 * @return ÑéÖ¤Âë×Ö·û´®
+	 * è·å–éªŒè¯ç 
+	 * @return éªŒè¯ç å­—ç¬¦ä¸²
 	 */
 	public String getVCode() {
 		return vCode;
 	}
 	
 	/*
-	 * ¹¹Ôìº¯Êı£¬ÅäÖÃÊôĞÔ
+	 * æ„é€ å‡½æ•°ï¼Œé…ç½®å±æ€§
 	 */
 	private EmailUtil() {
 		props = new Properties();
-		props.setProperty("mail.transport.protocol", "smtp");  // Ê¹ÓÃµÄĞ­Òé£¨JavaMail¹æ·¶ÒªÇó£©
-        props.setProperty("mail.smtp.host", myEmailSMTPHost);  // ·¢¼şÈËµÄÓÊÏäµÄ SMTP ·şÎñÆ÷µØÖ·
-        props.setProperty("mail.smtp.auth", "true");  // ĞèÒªÇëÇóÈÏÖ¤
+		props.setProperty("mail.transport.protocol", "smtp");  // ä½¿ç”¨çš„åè®®ï¼ˆJavaMailè§„èŒƒè¦æ±‚ï¼‰
+        props.setProperty("mail.smtp.host", myEmailSMTPHost);  // å‘ä»¶äººçš„é‚®ç®±çš„ SMTP æœåŠ¡å™¨åœ°å€
+        props.setProperty("mail.smtp.auth", "true");  // éœ€è¦è¯·æ±‚è®¤è¯
         session = Session.getInstance(props);
-        // session.setDebug(true);  // ÉèÖÃÎªdebugÄ£Ê½, ¿ÉÒÔ²é¿´ÏêÏ¸µÄ·¢ËÍ log 
+        // session.setDebug(true);  // è®¾ç½®ä¸ºdebugæ¨¡å¼, å¯ä»¥æŸ¥çœ‹è¯¦ç»†çš„å‘é€ log 
 	}
 	
 	/*
-	 * ¹¹½¨ÓÊ¼şÄÚÈİ
-	 * @param ÊÕ¼şÈË
-	 * @return ·¢ËÍÓÊ¼şÄÚÈİ
+	 * æ„å»ºé‚®ä»¶å†…å®¹
+	 * @param æ”¶ä»¶äºº
+	 * @return å‘é€é‚®ä»¶å†…å®¹
 	 */
 	public MimeMessage createMailContent(String toEmail) throws Exception, MessagingException {
 		MimeMessage message = new MimeMessage(session);
-		// ·¢¼şÈË
-		message.setFrom(new InternetAddress(fromEmail, "ÆóÒµ·ÑÓÃ¹ÜÀíÏµÍ³", "UTF-8"));
-		// ÊÕ¼şÈË
+		// å‘ä»¶äºº
+		message.setFrom(new InternetAddress(fromEmail, "ä¼ä¸šè´¹ç”¨ç®¡ç†ç³»ç»Ÿ", "UTF-8"));
+		// æ”¶ä»¶äºº
 		message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(toEmail));
-		// ÓÊ¼şÖ÷Ìâ
-		message.setSubject("ÑéÖ¤Âë", "UTF-8");
-		// ÓÊ¼şÕıÎÄ 
+		// é‚®ä»¶ä¸»é¢˜
+		message.setSubject("éªŒè¯ç ", "UTF-8");
+		// é‚®ä»¶æ­£æ–‡ 
 		vCode = VCodeUtill.verifyCode(6);
-		message.setContent("ÄúºÃ£¬ÄúµÄÑéÖ¤ÂëÊÇ£º"+vCode+"¡£", "text/html;charset=UTF-8");
-		// ÉèÖÃ·¢¼şÊ±¼ä
+		message.setContent("æ‚¨å¥½ï¼Œæ‚¨çš„éªŒè¯ç æ˜¯ï¼š"+vCode+"ã€‚", "text/html;charset=UTF-8");
+		// è®¾ç½®å‘ä»¶æ—¶é—´
 		message.setSentDate(new Date());
-		// ±£´æÉèÖÃ
+		// ä¿å­˜è®¾ç½®
 		message.saveChanges();
 		return message;
 	}
 	/*
-	 * ·¢ËÍÓÊ¼ş
-	 * @param ÊÕ¼şÈË
+	 * å‘é€é‚®ä»¶
+	 * @param æ”¶ä»¶äºº
 	 */
 	public void sendEmail(String toEmail) throws Exception {
 		Transport transport = session.getTransport();
 		transport.connect(fromEmail, fromEmailPw);
-		MimeMessage message = createMailContent(toEmail);  // ÓÊ¼şÄÚÈİ
+		MimeMessage message = createMailContent(toEmail);  // é‚®ä»¶å†…å®¹
 		transport.sendMessage(message, message.getAllRecipients());
-		System.out.println("ÑéÖ¤Âë·¢ËÍ³É¹¦£¡");
-		// ¹Ø±ÕÁ¬½Ó
+		System.out.println("éªŒè¯ç å‘é€æˆåŠŸï¼");
+		// å…³é—­è¿æ¥
 		transport.close();
 	}
 }
