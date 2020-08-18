@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.js.sju.dao.mapper.IListMsgMapper">
+<!-- 菜单管理 -->
+  <select id="getMenu" resultType="java.util.HashMap">
+  	SELECT 
+  		MID as id,mname as text,murl,fathername,
+  		CASE WHEN xs=0 THEN 'open' ELSE 'closed' END state
+	FROM 
+	(
+		SELECT
+			DISTINCT m.mid,m.mname,m.murl,m.fathername,
+			(SELECT COUNT(*) FROM menu mm WHERE mm.fathername = m.mid) xs
+		FROM
+			users u,user_role ur,role r,
+			menu m,role_menu rm
+		WHERE
+			u.uid = ur.uid
+			AND
+			ur.rid = r.rid
+			AND
+			r.rid = rm.rid
+			AND
+			rm.mid = m.mid
+			<if test="username!=null and username!=''">
+  				AND
+				u.name=#{username}
+			and
+			u.isexit = 0
+  			</if>
+  		<choose>
+  			<when test="fatherid!=null and fatherid!=''">
+	  			and m.fathername=#{fatherid}
+  			</when>
+  			<otherwise>
+				and m.fathername is null  			
+  			</otherwise>
+  		</choose>  		
+	) b
+  </select>
+  
+  <select id="getRid" resultType="int">
+  	select rid from role where rname=#{rname}
+  </select>
+  
+  <select id="getMenu2" resultType="java.util.HashMap">
+  	SELECT 
+  		MID as id,mname as text,murl,fathername,
+  		CASE WHEN xs=0 THEN 'open' ELSE 'closed' END state
+	FROM 
+	(
+		SELECT
+			DISTINCT m.mid,m.mname,m.murl,m.fathername,
+			(SELECT COUNT(*) FROM menu mm WHERE mm.fathername = m.mid) xs
+		FROM
+			users u,user_role ur,role r,
+			menu m,role_menu rm
+		WHERE
+			u.uid = ur.uid
+			AND
+			ur.rid = r.rid
+			AND
+			r.rid = rm.rid
+			AND
+			rm.mid = m.mid
+
+  		<choose>
+  			<when test="fatherid!=null and fatherid!=''">
+	  			and m.fathername=#{fatherid}
+  			</when>
+  			<when test="rid!=null and rid!=''">
+	  			and r.rid=#{rid}
+  			</when>
+  			<otherwise>
+				and m.fathername is null  			
+  			</otherwise>
+  		</choose>  		
+	) b
+  </select>
+  
+  
+ 	<sql id="baseSql">
+ 		SELECT 
+			a.name,a.username,a.sal,a.sdata,a.hire,a.userid
+		FROM 
+		(SELECT
+			xx.name,xx.username,xx.sal,xx.sdata,xx.hire,xx.userid
+		from
+		(SELECT 
+			u.name,u.username,s.sal,s.sdata,u.hire,u.userid
+		FROM 
+			users u,salary s
+		WHERE
+			u.uid=s.uid and s.sdata!="2000-00-00" and u.isexit=0) xx
+		<where>	
+		<choose>
+  			<when test="name!=null and name!=''">
+					xx.name=#{name}
+			</when>
+  		</choose>
+  		</where> 
+  		<if test="sort!=null and sort!=''">
+  			order by ${sort} ${order}
+  		</if>
+			) a
+		<where>
+			<if test="ename!=null and ename!=''">
+  				 a.name like concat('%',#{ename},'%') 
+  				or
+  				 a.username like concat('%',#{ename},'%')
+  				or 
+  				 a.sdata like binary concat('%',#{ename},'%')
+  				 or 
+  				 a.userid like binary concat('%',#{ename},'%')
+  			</if>
+		</where> 	
+	</sql>
+  <!-- 薪资分页查询 -->
+  <select id="findEmpsByPage" resultType="cn.js.sju.pojo.SalList">
+  	<include refid="baseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  </select>
+  <!-- 查询薪资分页 -->
+  <select id="findEmpsCount" resultType="int">
+  	select count(*) from (<include refid="baseSql"></include>) a
+  </select>
+  	<!--查询员工个人信息 -->
+	<select id="listUserDate" resultType="cn.js.sju.pojo.Users">
+	
+	SELECT username,name,phone,hire,gender,age,email,userid,rname,deptname,users.deptno deptno FROM users,role,user_role,dept WHERE 
+	users.uid=user_role.uid AND user_role.rid = role.rid AND users.deptno=dept.deptno    AND username=#{username}
+	</select>
+
+	<!-- 修改个人信息-->
+	<update id="updateUserDate">
+		update users set phone=#{phone},gender=#{gender},age=#{age},email=#{email} where username=#{username}
+	</update>
+	
+	
+	<!--跟新账户密码 -->
+	<update id="updateUser_Pw">
+		update users set username=#{username},password=#{password} where userid=#{userid}
+	</update>
+	
+	<!-- 查询用户名-->
+	<select id="findUserDate" resultType="int">
+		select count(*) from users where username=#{username} 
+	</select>
+	
+	<!-- 查询所有人信息-->
+	<select id="listUsers" resultType="cn.js.sju.pojo.Users">
+	SELECT DISTINCT xs.username,xs.NAME,xs.phone,xs.hire,xs.gender,xs.age,xs.email,xs.userid,xs.deptname
+	from 
+	(SELECT DISTINCT xx.username,xx.NAME,xx.phone,xx.hire,xx.gender,xx.age,xx.email,xx.userid,xx.deptname 
+	FROM
+	(SELECT DISTINCT username,NAME,phone,hire,gender,age,email,userid,deptname FROM users,role,user_role,dept WHERE 
+	users.uid=user_role.uid AND user_role.rid = role.rid AND dept.deptno=users.deptno  AND isexit=0 and role.isexitrole=0) xx
+	<where>	
+  		</where> 
+  		<if test="sort!=null and sort!=''">
+  			order by ${sort} ${order}
+  		</if>) xs
+	<where>
+			<if test="ename!=null and ename!=''">
+  				 xs.name like concat('%',#{ename},'%') 
+  				or
+  				 xs.username like concat('%',#{ename},'%')
+  				or 
+  				 xs.userid like binary concat('%',#{ename},'%')
+  			</if>
+	</where> 
+	</select>
+	
+	<!-- 分页查询-->
+	<select id="findusersCount" resultType="int">
+	 select count(*) from (SELECT DISTINCT username,NAME,phone,hire,gender,age,email,userid,deptno FROM users,role,user_role WHERE 
+	users.uid=user_role.uid AND user_role.rid = role.rid  and isexit=0 and role.isexitrole=0) s
+	</select>
+	
+	<!-- 查询职位-->
+	<select id="selectrole" resultType="cn.js.sju.pojo.Users">
+	SELECT GROUP_CONCAT(rname) AS rname FROM  users,role,user_role WHERE 
+	users.uid=user_role.uid AND user_role.rid = role.rid AND users.username=#{username} and role.isexitrole=0
+	</select>
+	<select id="selectrid" resultType="cn.js.sju.pojo.Users">
+	SELECT GROUP_CONCAT(rid) AS rid FROM  users,user_role WHERE 
+	users.uid=user_role.uid AND users.username=#{username}
+	</select>
+	
+	
+	<!-- 查询所有职位-->
+	<select id="listRname" resultType="cn.js.sju.pojo.Position">
+		select rid,rname from role where isexitrole=0
+	</select>
+	
+	<!-- 查询所有部门-->
+	<select id="listDept" resultType="cn.js.sju.pojo.Dept">
+		select deptno,deptname from dept where isnull=0
+	</select>
+	<select id="countDeptNo" resultType="int">
+		SELECT COUNT(*) FROM users WHERE deptno = #{deptno}
+	</select>
+	
+	<!-- 增加新员工-->
+	<insert id="insertUserNew">
+		insert into users(name,username,gender,password,phone,age,deptno,userid,hire,isexit,email)
+		values(#{name},#{userid},#{gender},#{password},#{phone},#{age},#{deptno},#{userid},#{hire},0,#{email})
+	</insert>
+	<insert id="insertUserNew_rname">
+		INSERT INTO user_role(uid,rid) 
+		SELECT uid,#{rid} FROM users WHERE userid=#{userid}
+	</insert>
+	
+	<!-- 管理员修改员工信息-->
+	<update id="upDateUsersMsg">
+		update users set name=#{name},username=#{username},gender=#{gender},phone=#{phone},age=#{age},deptno=#{deptno},email=#{email}
+		where userid=#{userid}
+	</update>
+	<delete id="delectUsersMsg_rname">
+		DELETE user_role FROM user_role,users WHERE users.uid=user_role.uid AND users.userid=#{userid}
+	</delete>
+	<update id="updateUsersMsgPassW">
+		update users set password=#{password}
+		where userid=#{userid}
+	</update>
+	
+	<!-- 删除用户 -->
+	<update id="deleteUser">
+		update users set isexit = 1 where userid=#{userid}
+	</update>
+	
+	<!-- 分页查询角色 -->
+	<sql id="rolebaseSql">
+		select rid,rname from role where isexitrole=0
+	</sql>
+	<select id="roleControlByPage" resultType="cn.js.sju.pojo.Users">
+  		<include refid="rolebaseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  	</select>
+  	<!-- 查询角色分页 -->
+  	<select id="roleControl" resultType="int">
+  		select count(*) from (<include refid="rolebaseSql"></include>) a
+  	</select>
+  	
+  	
+  	<!-- 角色插入 -->
+  	<select id="countinsertRole" resultType="int">
+  		select count(*) from role where rname=#{rname}  and isexitrole=0
+  	</select>
+	<insert id="insertRole">
+		INSERT INTO role(rname,isexitrole) values(#{rname},0)
+	</insert>
+	<update id="insertRoleexit">
+		update role set isexitrole=0 where rname = #{rname}
+	</update>
+	
+	<!-- 菜单权限赋予 -->
+	<insert id="insertRole_Menu">
+		insert into role_menu(rid,mid)
+		select rid,#{mid} from role where rname=#{rname}
+	</insert>
+	
+	<!-- 获取待升级角色的菜单 -->
+	<select id="listRoleUpdateMenu" resultType="cn.js.sju.pojo.Position">
+	SELECT GROUP_CONCAT(MID) AS MID FROM role_menu,role WHERE role.rid=role_menu.rid  AND role.rname=#{rname}	
+	</select>
+	
+	<!-- 修改角色权限-->
+	<delete id="deleteRoleUpdateMenu">
+		delete role_menu from role_menu,role where role.rid = role_menu.rid and role.rname=#{rname} 
+	</delete>
+	
+	<!-- 删除角色权限-->
+	<select id="countDeleteRole" resultType="int">
+		SELECT COUNT(*) FROM users,user_role WHERE rid=#{rid} AND users.uid=user_role.uid	AND users.isexit=0
+	</select>
+	<delete id="DeleteRole_Menu">
+		delete  from role_menu where rid = #{rid}
+	</delete>
+	<update id="DeleteRole">
+		update role set isexitrole=1 where rid = #{rid}
+	</update>
+	
+	
+	<!-- 分页查询部门 -->
+	<sql id="deptbaseSql">
+		select deptno,deptname from dept where isnull=0
+	</sql>
+	<select id="deptControlByPage" resultType="cn.js.sju.pojo.Dept">
+  		<include refid="deptbaseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  	</select>
+  	<!-- 查询部门分页 -->
+  	<select id="deptControl" resultType="int">
+  		select count(*) from (<include refid="deptbaseSql"></include>) a
+  	</select>
+  	
+  	
+  	<!-- 部门插入 -->
+  	<select id="countinsertDept" resultType="int">
+  		select count(*) from dept where deptname=#{deptname} and isnull=0
+  	</select>
+	<insert id="insertDept">
+		INSERT INTO dept(deptname,isnull) values(#{deptname},0)
+	</insert>
+	<update id="insertDeptexit">
+		update dept set isnull=0 where deptname = #{deptname}
+	</update>
+	
+	<!-- 删除部门-->
+	<select id="countDeleteDept" resultType="int">
+		SELECT COUNT(*) FROM users WHERE deptno=#{deptno} 	AND users.isexit=0 
+	</select>
+	<update id="deleteDept">
+		update dept set isnull=1 where deptno = #{deptno}
+	</update>
+</mapper>

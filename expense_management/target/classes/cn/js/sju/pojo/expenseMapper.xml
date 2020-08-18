@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.js.sju.dao.mapper.IExpenseMapper">
+ 
+  	<insert id="applyReport">
+  		insert into report(uid,money,tips,redate,caiwu,jingli,reisexit) select uid,#{money},#{tips},#{redate},0,0,0 from users where username=#{username}
+  	</insert>
+  	
+  	<sql id="baseSql">
+  	SELECT reid,userid,NAME,money,tips,redate,caiwu,jingli 
+  	FROM users,report WHERE users.uid=report.uid 
+  	<if test="username!=null and username!=''">
+  	AND 
+  	users.username=#{username}	
+  	</if>
+  	AND reisexit=0
+  	</sql>
+  	
+  	<!-- 报销分页查询 -->
+  <select id="listReportByPage" resultType="cn.js.sju.pojo.Report">
+  	<include refid="baseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  </select>
+  <!-- 查询报销分页 -->
+  <select id="listReportcout" resultType="int">
+  	select count(*) from (<include refid="baseSql"></include>) a
+  </select>
+  
+  
+  <sql id="caibaseSql">
+  	SELECT reid,userid,NAME,money,tips,redate,caiwu,jingli 
+  	FROM users,report WHERE users.uid=report.uid 
+  	<if test="username!=null and username!=''">
+  	AND 
+  	users.username=#{username}	
+  	</if>
+  	AND reisexit=0 and jingli =1 and caiwu =0
+  	</sql>
+  	
+  	<!-- 报销分页查询 -->
+  <select id="listCaiReportByPage" resultType="cn.js.sju.pojo.Report">
+  	<include refid="caibaseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  </select>
+  <!-- 查询报销分页 -->
+  <select id="listCaireport" resultType="int">
+  	select count(*) from (<include refid="caibaseSql"></include>) a
+  </select>
+  
+  <update id="caiCheckReport">
+  	update report set caiwu=#{caiwu} where reid=#{reid}
+  </update>
+  
+  
+   <sql id="jingbaseSql">
+  	SELECT reid,userid,NAME,money,tips,redate,caiwu,jingli 
+  	FROM users,report WHERE users.uid=report.uid 
+  	<if test="username!=null and username!=''">
+  	AND 
+  	users.username=#{username}	
+  	</if>
+  	AND reisexit=0 and jingli =0 and caiwu =0
+  	</sql>
+  	
+  	<!-- 报销分页查询 -->
+  <select id="listJingReportByPage" resultType="cn.js.sju.pojo.Report">
+  	<include refid="jingbaseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+  </select>
+  <!-- 查询报销分页 -->
+  <select id="listJingReport" resultType="int">
+  	select count(*) from (<include refid="jingbaseSql"></include>) a
+  </select>
+  
+    <update id="jingCheckReport">
+  	update report set jingli=#{jingli} where reid=#{reid}
+  </update>
+  
+  <update id="backCheckReport">
+  	update report set jingli=0,caiwu=0  where reid=#{reid}
+  </update>
+  
+  <select id="costCount" resultType="cn.js.sju.pojo.Report">
+  	SELECT SUM(money) AS money,#{month} AS MONTH FROM report WHERE MONTH(redate)=#{month} AND jingli=1 AND caiwu=1
+  </select>
+</mapper>

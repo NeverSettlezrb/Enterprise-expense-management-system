@@ -1,0 +1,17 @@
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:17:01 +0800] "GET / HTTP/1.1" 404 951 http-bio-8888-exec-4 2890
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:17:03 +0800] "GET /favicon.ico HTTP/1.1" 404 973 http-bio-8888-exec-7 8
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:17:51 +0800] "GET /jsp/Login.jsp HTTP/1.1" 200 624 http-bio-8888-exec-9 6175
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:06 +0800] "GET /jsp/Login.jsp HTTP/1.1" 200 670 http-bio-8888-exec-2 1101
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:07 +0800] "GET /jsp/css/style.css HTTP/1.1" 404 985 http-bio-8888-exec-2 28
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:23 +0800] "GET /jsp/Login.jsp HTTP/1.1" 200 670 http-bio-8888-exec-5 13
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:23 +0800] "GET /jsp/css/style.css HTTP/1.1" 200 6790 http-bio-8888-exec-5 13
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:23 +0800] "GET /jsp/img/bg.png HTTP/1.1" 200 92 http-bio-8888-exec-5 3
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:23 +0800] "GET /jsp/img/arrow.png HTTP/1.1" 200 505 http-bio-8888-exec-5 11
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:47 +0800] "GET /jsp/Login.jsp HTTP/1.1" 200 670 http-bio-8888-exec-4 4
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:47 +0800] "GET /jsp/css/style.css HTTP/1.1" 304 - http-bio-8888-exec-4 88
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:47 +0800] "GET /jsp/img/bg.png HTTP/1.1" 304 - http-bio-8888-exec-4 10
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:47 +0800] "GET /jsp/img/arrow.png HTTP/1.1" 304 - http-bio-8888-exec-10 10
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:34:50 +0800] "POST /jsp/Login.jsp HTTP/1.1" 200 670 http-bio-8888-exec-10 2
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:35:37 +0800] "POST /jsp/Login.jsp HTTP/1.1" 200 662 http-bio-8888-exec-7 802
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:35:37 +0800] "GET /jsp/css/style.css HTTP/1.1" 304 - http-bio-8888-exec-7 48
+0:0:0:0:0:0:0:1 - - [06/Jun/2020:20:35:48 +0800] "POST /jsp/Login.jsp HTTP/1.1" 200 662 http-bio-8888-exec-3 7

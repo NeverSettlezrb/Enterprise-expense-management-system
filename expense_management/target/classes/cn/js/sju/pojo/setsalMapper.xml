@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.js.sju.dao.mapper.ISetSalMapper">
+	<!-- 工资发放 -->
+	<insert id="setSal">
+		INSERT INTO 
+		salary(uid,sal,sdata) 
+		SELECT 
+		uid,#{sal},#{sdata} FROM users WHERE username=#{username}
+	</insert>
+	
+	
+	
+	<sql id="baseSql">
+		SELECT 
+			name,userid,username,sal,sdata,hire 
+		FROM 
+			(SELECT DISTINCT name,userid,username,sal,sdata,hire FROM users,salary WHERE users.uid=salary.uid and users.isexit=0  ORDER BY salary.sdata DESC) s 
+		<where>	
+		<choose>
+			<when test="username!=null and username!=''">
+					username=#{username}
+			</when>
+		</choose>
+  		</where> 
+		GROUP BY 
+			username 
+	</sql>
+	<!--查询所有人员  -->
+	<select id="listSetSal" resultType="cn.js.sju.pojo.SalList">
+		<include refid="baseSql"></include> limit ${(currPage-1)*pageRecs},${pageRecs}
+	</select>
+	
+	<insert id=""></insert>
+	
+	
+	<select id="findallusername" resultType="cn.js.sju.pojo.SalList">
+		SELECT DISTINCT uid,name,username FROM users
+	</select>
+	
+	<insert id="addSetSal">
+	INSERT INTO 
+		salary(uid,sal,sdata)
+	SELECT #{uid},0,"2000-00-00"
+	FROM DUAL 
+	WHERE NOT EXISTS (
+		SELECT salary.uid,sal,sdata FROM salary,users WHERE users.uid=salary.uid AND users.name=#{name} AND users.username=#{username}
+	) 
+	</insert>
+	<!--分页查询  -->
+	<select id="findSetSalCount" resultType="int">
+		select count(*) from (<include refid="baseSql"></include>) a
+	</select>
+	
+	<!--验证近期是否发放工资  -->
+	<select id="verifySal" resultType="int">
+		SELECT 
+			COUNT(sdata) 
+		FROM 
+			salary,users 
+		WHERE 
+			users.uid= salary.uid 
+		AND 
+			username=#{username} AND sdata=#{sdata}
+	</select>
+	
+	<!-- 修改工资人员查询 -->
+  	<select id="findUpadateSal" resultType="cn.js.sju.pojo.SalList">
+  		<include refid="baseSql"></include>
+  	</select> 
+	
+	<!-- 修改员工工资 -->
+	<update id="updateSal">
+		UPDATE 
+			salary,users 
+		SET 
+			sal=#{sal} 
+		WHERE 
+			users.uid=salary.uid 	
+		AND 
+			sdata=#{sdata} AND username=#{username} AND name=#{name}
+	</update>
+	
+	<!--  获取发放工资人员信息 -->
+	<select id="getMsg" resultType="cn.js.sju.pojo.SalList">
+		SELECT DISTINCT
+			name
+		FROM 
+			salary,users 
+		WHERE
+			users.uid=salary.uid
+		AND
+			username=#{username}
+	</select>
+	
+	<!-- 查询往期账单 -->
+	<select id="findperUpadateSal" resultType="cn.js.sju.pojo.SalList">
+		SELECT  
+			NAME,username,sal,sdata
+		FROM
+			(SELECT DISTINCT NAME,username,sal,sdata FROM users,salary WHERE users.uid=salary.uid) s
+		WHERE 
+			username=#{username} AND sdata=#{sdata}
+	</select>
+	
+	<!-- 修改员工之前账单 -->
+	<update id="preupdateSal">
+	UPDATE 
+			salary,users 
+		SET 
+			sal=#{sal} 
+		WHERE 
+			users.uid=salary.uid 	
+		AND 
+			sdata=#{sdata} AND username=#{username}
+	</update>
+	
+	<!-- 删除工资 -->
+	<delete id="prereMove">
+	DELETE 
+		salary 
+	FROM 
+		salary,users 
+	WHERE 
+		users.uid=salary.uid 
+	AND username=#{username}
+	AND sal=#{sal}
+	AND sdata=#{sdata}
+	</delete>
+	
+	<!--  -->
+</mapper>
+
